@@ -82,7 +82,7 @@ void net_update(struct Net *net, double *inputs) {
 				input += previousLayer->neurons[j].output * neuron->weights[j];
 			}
 
-			input += neuron->bias;
+			input += neuron.bias;
 
 			neuron->output = f(input);
 		}
@@ -107,7 +107,7 @@ double _net_calculateError(struct Net *net, struct TrainingSet *trainingSets, si
 			if(_error < 0)
 				_error = _error * -1;
 
-			error += _error;
+			error += _error * _error;
 		}
 	}
 
@@ -152,7 +152,6 @@ void net_train(struct Net *net, struct TrainingSet *trainingSets, size_t $traini
 					}
 				}
 
-				/*
 				double bias = neuron->bias;
 				double error[3];
 
@@ -179,7 +178,6 @@ void net_train(struct Net *net, struct TrainingSet *trainingSets, size_t $traini
 				} else if(error[2] == lowestError) {
 					neuron->bias = bias - step;
 				}
-				*/
 			}
 		}
 	}
@@ -211,18 +209,20 @@ int main() {
 		trainingSet->inputs = calloc(sizeof(double), layers[0]);
 
 		for(size_t j = 0; j < layers[0]; j++) {
-			assert(fscanf(stdin, "%lf", &trainingSet->inputs[0]) > 0);
+			assert(fscanf(stdin, "%lf", &trainingSet->inputs[j]) > 0);
 		}
 
 		trainingSet->outputs = calloc(sizeof(double), layers[$layers - 1]);
 
 		for(size_t j = 0; j < layers[$layers - 1]; j++) {
-			assert(fscanf(stdin, "%lf", &trainingSet->outputs[0]) > 0);
+			assert(fscanf(stdin, "%lf", &trainingSet->outputs[j]) > 0);
 		}
+
+		//printf("(%lf %lf : %lf %lf)", trainingSet->inputs[0], trainingSet->inputs[1], trainingSet->outputs[0], trainingSet->outputs[1]);
 	}
 
 	struct Net *net = net_create(layers, $layers);
-	net_train(net, trainingSets, $trainingSets, 10000, 0.01);
+	net_train(net, trainingSets, $trainingSets, 10000, 0.001);
 
 	double inputs0[] = { 1, 0 };
 
@@ -234,6 +234,4 @@ int main() {
 
 	net_update(net, inputs1);
 	printf("%lf %lf\n", net->layers[2].neurons[0].output, net->layers[2].neurons[1].output);
-
-	printf("%lf\n", random());
 }
