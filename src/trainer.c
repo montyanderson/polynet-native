@@ -82,7 +82,7 @@ void net_update(struct Net *net, double *inputs) {
 				input += previousLayer->neurons[j].output * neuron->weights[j];
 			}
 
-			input += neuron.bias;
+			input += neuron->bias;
 
 			neuron->output = f(input);
 		}
@@ -187,18 +187,18 @@ int main() {
 	srand(time(NULL));
 
 	uint32_t $layers;
-	assert(fscanf(stdin, "%u", &$layers) > 0);
+	assert(scanf("%u", &$layers) > 0);
 
 	assert($layers > 2);
 
 	uint32_t *layers = calloc(sizeof(uint32_t), $layers);
 
 	for(size_t i = 0; i < $layers; i++) {
-		assert(fscanf(stdin, "%u", &layers[i]) > 0);
+		assert(scanf("%u", &layers[i]) > 0);
 	}
 
 	uint32_t $trainingSets;
-	assert(fscanf(stdin, "%u", &$trainingSets) > 0);
+	assert(scanf("%u", &$trainingSets) > 0);
 
 	struct TrainingSet *trainingSets = calloc(sizeof(struct TrainingSet), $trainingSets);
 	assert(trainingSets != NULL);
@@ -209,29 +209,39 @@ int main() {
 		trainingSet->inputs = calloc(sizeof(double), layers[0]);
 
 		for(size_t j = 0; j < layers[0]; j++) {
-			assert(fscanf(stdin, "%lf", &trainingSet->inputs[j]) > 0);
+			assert(scanf("%lf", &trainingSet->inputs[j]) > 0);
 		}
 
 		trainingSet->outputs = calloc(sizeof(double), layers[$layers - 1]);
 
 		for(size_t j = 0; j < layers[$layers - 1]; j++) {
-			assert(fscanf(stdin, "%lf", &trainingSet->outputs[j]) > 0);
+			assert(scanf("%lf", &trainingSet->outputs[j]) > 0);
 		}
-
-		//printf("(%lf %lf : %lf %lf)", trainingSet->inputs[0], trainingSet->inputs[1], trainingSet->outputs[0], trainingSet->outputs[1]);
+		// printf("(%lf %lf : %lf %lf)", trainingSet->inputs[0], trainingSet->inputs[1], trainingSet->outputs[0], trainingSet->outputs[1]);
 	}
 
+	double step;
+	size_t iterations;
+
+	assert(scanf("%lf", &step) > 0);
+	assert(scanf("%lu", &iterations) > 0);
+
 	struct Net *net = net_create(layers, $layers);
-	net_train(net, trainingSets, $trainingSets, 10000, 0.001);
 
-	double inputs0[] = { 1, 0 };
+	net_train(net, trainingSets, $trainingSets, iterations, step);
 
-	net_update(net, inputs0);
-	printf("%lf %lf ", net->layers[2].neurons[0].output, net->layers[2].neurons[1].output);
+	for(size_t i = 1; i < net->$layers; i++) {
+		struct Layer *previousLayer = &net->layers[i - 1];
+		struct Layer *layer = &net->layers[i];
 
-	double inputs1[] = { 0, 1 };
+		for(size_t j = 0; j < layer->$neurons; j++) {
+			struct Neuron *neuron = &layer->neurons[j];
 
+			printf("%lf\n", neuron->bias);
 
-	net_update(net, inputs1);
-	printf("%lf %lf\n", net->layers[2].neurons[0].output, net->layers[2].neurons[1].output);
+			for(size_t k = 0; k < previousLayer->$neurons; k++) {
+				printf("%lf\n", neuron->weights[k]);
+			}
+		}
+	}
 }
