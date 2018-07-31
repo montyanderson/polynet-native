@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prepare": "gcc src/trainer.c -g -O2 -o bin/trainer",
+    "preinstall": "gcc src/trainer.c -g -O2 -o bin/trainer",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
